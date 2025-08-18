@@ -1,0 +1,8 @@
+__pycache__/
+
+data/raw/*
+!data/raw/.gitkeep
+data/images/*
+!data/images/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
