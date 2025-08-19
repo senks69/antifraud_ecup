@@ -6,3 +6,5 @@ data/images/*
 !data/images/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+
+.ipynb_checkpoints
