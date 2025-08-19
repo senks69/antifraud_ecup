@@ -10,7 +10,7 @@
 
 ## src/
 
-- **\*infer.py**
+- **infer.py**
 - **train.py**
 
 #### src/data/
