@@ -20,4 +20,5 @@ build-backend = "poetry.core.masonry.api"
 jupyterlab = "^4.4.6"
 pandas = "^2.3.1"
 numpy = "^2.3.2"
+scikit-learn = "^1.7.1"
 
