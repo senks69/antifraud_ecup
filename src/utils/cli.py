@@ -3,15 +3,15 @@ import pandas as pd
 import sys
 
 from pathlib import Path
-from src.data.transform import (
+from data.transform import (
     clean_html_tags,
     clean_text_basic,
     clean
 )
 
 sys.path.append(str(Path(__file__).parent.parent))
-_input_dir = "data/raw/"
-_output_dir = "data/processed/"
+_input_dir = "../data/raw/"
+_output_dir = "../data/processed/"
 _input_file = "ml_ozon_counter_test.csv"
 _output_file = "ml_ozon_counter_test_processed.csv"
 
@@ -24,11 +24,18 @@ class CLI:
         self.COMMANDS = {
             "clean-html": self._clean_html_tags,
             "clean-text": self._clean_text_basic,
-            "clean": self._clean
+            "clean": self._clean,
+            "prepare-data": self._prepare_data
         }
         self.init_commands()
 
     def init_commands(self):
+        #---------------------------------------------
+        self.prepare_data = self.subparsers.add_parser(
+            "prepare-data",
+            help="Настраиваемая подготовка данных"
+        )
+
         #---------------------------------------------
         self.clean_parser = self.subparsers.add_parser(
             "clean", 
@@ -89,6 +96,9 @@ class CLI:
         else:
             result(args)
 
+    def prepare_data(self, args):
+        ...
+
     def _clean_html_tags(self, args):
         input_path = Path(_input_dir) / args.input_file
         output_path = Path(_output_dir) / args.output_file
@@ -108,10 +118,41 @@ class CLI:
         print(f"Обработано колонок: {len(text_columns)}")
 
     def _clean_text_basic(self, args):
-        ...
+        input_path = Path(_input_dir) / args.input_file
+        output_path = Path(_output_dir) / args.output_file
+        
+        print(f"Загрузка файла: {input_path}")
+        dataframe = pd.read_csv(input_path)
+        
+        text_columns = dataframe.select_dtypes(include=['object', 'string']).columns.tolist()
+        
+        print("Очистка текста от спец. символов во всех текстовых колонках...")
+        for column in text_columns:
+            dataframe[column] = dataframe[column].apply(clean_text_basic)
+            print(f"{column} - очищена")
+        
+        dataframe.to_csv(output_path, index=False)
+        print(f"Файл сохранен: {output_path}")
+        print(f"Обработано колонок: {len(text_columns)}")
 
     def _clean(self, args):
-        ...
+        input_path = Path(_input_dir) / args.input_file
+        output_path = Path(_output_dir) / args.output_file
+        
+        print(f"Загрузка файла: {input_path}")
+        dataframe = pd.read_csv(input_path)
+        
+        text_columns = dataframe.select_dtypes(include=['object', 'string']).columns.tolist()
+        
+        print("Очистка текста от спец. символов и HTML тегов во всех текстовых колонках...")
+        for column in text_columns:
+            dataframe[column] = dataframe[column].apply(clean_html_tags)
+            dataframe[column] = dataframe[column].apply(clean_text_basic)
+            print(f"{column} - очищена")
+        
+        dataframe.to_csv(output_path, index=False)
+        print(f"Файл сохранен: {output_path}")
+        print(f"Обработано колонок: {len(text_columns)}")
 
     def run(self):
         args = self.parse_command()
